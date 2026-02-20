@@ -5,6 +5,6 @@ Este repositório contém o código-fonte do jogo **SPLINTERIS**, desenvolvido n
 ---
 
 ## Tecnologias e Ferramentas
-*   **Engine:** [Unity](https://unity.com) (Versão: 202X.X)
+*   **Engine:** [Unity](https://unity.com) (Versão: 6.1 (6000.1.15f1))
 *   **Linguagem:** C#
 *   **Versionamento:** Git (com [.gitignore para Unity](
