@@ -11,37 +11,34 @@ public enum EnemyState
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(EnemyGunController))]
+[RequireComponent(typeof(GunController))]
 public class Enemy : MonoBehaviour
 {
     #region Settings
 
     [Header("General Stats")]
-    [SerializeField] private float health = 100f;
-    [SerializeField] private string playerTag = "Player";
+    [SerializeField] private float _health = 100f;
+    [SerializeField] private string _playerTag = "Player";
 
     [Header("Model Correction")]
     [Range(-180f, 180f)]
-    [SerializeField] private float modelRotationYOffset = 0f; 
+    [SerializeField] private float _modelRotationYOffset = 0f; 
 
     [Header("AI Configuration")]
-    [SerializeField] private float detectionRadius = 15f;
+    [SerializeField] private float _detectionRadius = 15f;
     [Range(0, 360)]
-    [SerializeField] private float fieldOfView = 110f;
-    [SerializeField] private float attackRange = 10f; 
-    [SerializeField] private float stopChaseDistance = 20f;
-    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private float _fieldOfView = 110f;
+    [SerializeField] private float _attackRange = 10f; 
+    [SerializeField] private float _stopChaseDistance = 20f;
+    [SerializeField] private LayerMask _obstacleMask;
 
     [Header("Movement")]
-    [SerializeField] private float rotationSpeed = 8f;
-    [SerializeField] private float patrolTurnInterval = 4f;
+    [SerializeField] private float _rotationSpeed = 8f;
+    [SerializeField] private float _patrolTurnInterval = 4f;
 
     [Header("Audio/VFX")]
-    [SerializeField] private GameObject deathEffect;
-    [SerializeField] private AudioClip deathSound;
-
-    [Header("UI")]
-    [SerializeField] private MainUI mainUI;
+    [SerializeField] private GameObject _deathEffectPrefab;
+    [SerializeField] private AudioClip _deathSound;
 
     #endregion
 
@@ -49,7 +46,7 @@ public class Enemy : MonoBehaviour
 
     private NavMeshAgent _agent;
     private Animator _animator;
-    private EnemyGunController _gunController;
+    private GunController _gunController;
     private Transform _playerTransform;
     
     private EnemyState _currentState;
@@ -69,7 +66,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (health <= 0) return;
+        if (_health <= 0) return;
 
         if (_playerTransform == null)
         {
@@ -81,28 +78,27 @@ public class Enemy : MonoBehaviour
         UpdateAnimations();
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
-
-        Vector3 correctedForward = Quaternion.Euler(0, modelRotationYOffset, 0) * transform.forward;
+        Vector3 correctedForward = Quaternion.Euler(0, _modelRotationYOffset, 0) * transform.forward;
         
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(transform.position + Vector3.up, correctedForward * 2f);
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.DrawWireSphere(transform.position, _detectionRadius);
         
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
 
         if (_currentState == EnemyState.Idle || _currentState == EnemyState.Chasing)
         {
             Gizmos.color = Color.green;
-            Vector3 viewAngleA = DirFromAngle(-fieldOfView / 2, false);
-            Vector3 viewAngleB = DirFromAngle(fieldOfView / 2, false);
+            Vector3 viewAngleA = DirFromAngle(-_fieldOfView / 2, false);
+            Vector3 viewAngleB = DirFromAngle(_fieldOfView / 2, false);
 
-            Gizmos.DrawLine(transform.position, transform.position + viewAngleA * detectionRadius);
-            Gizmos.DrawLine(transform.position, transform.position + viewAngleB * detectionRadius);
+            Gizmos.DrawLine(transform.position, transform.position + viewAngleA * _detectionRadius);
+            Gizmos.DrawLine(transform.position, transform.position + viewAngleB * _detectionRadius);
         }
     }
 
@@ -110,7 +106,7 @@ public class Enemy : MonoBehaviour
     {
         if (!angleIsGlobal)
         {
-            angleInDegrees += transform.eulerAngles.y + modelRotationYOffset;
+            angleInDegrees += transform.eulerAngles.y + _modelRotationYOffset;
         }
         return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
     }
@@ -123,24 +119,24 @@ public class Enemy : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _animator = GetComponent<Animator>();
-        _gunController = GetComponent<EnemyGunController>();
+        _gunController = GetComponent<GunController>();
 
         FindPlayer();
         
-        _agent.stoppingDistance = attackRange * 0.7f; 
+        _agent.stoppingDistance = _attackRange * 0.7f; 
         _agent.updateRotation = false; 
     }
 
     private void FindPlayer()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+        GameObject playerObj = GameObject.FindGameObjectWithTag(_playerTag);
         if (playerObj != null)
         {
             _playerTransform = playerObj.transform;
         }
         else
         {
-            Debug.LogWarning($"[Enemy] Jogador com a tag '{playerTag}' não encontrado! O inimigo ficará parado.");
+            Debug.LogWarning($"[Enemy] Player with tag '{_playerTag}' not found! Enemy will remain idle.");
         }
     }
 
@@ -169,17 +165,13 @@ public class Enemy : MonoBehaviour
     {
         _currentState = newState;
 
-        if (newState == EnemyState.Idle)
+        if (newState == EnemyState.Idle || newState == EnemyState.Attacking)
         {
-            _agent.isStopped = true;
+            if (_agent.isOnNavMesh) _agent.isStopped = true;
         }
         else if (newState == EnemyState.Chasing)
         {
-            _agent.isStopped = false;
-        }
-        else if (newState == EnemyState.Attacking)
-        {
-            _agent.isStopped = true;
+            if (_agent.isOnNavMesh) _agent.isStopped = false;
         }
     }
 
@@ -190,7 +182,7 @@ public class Enemy : MonoBehaviour
     private void HandleIdleState(bool canSeePlayer, float distance)
     {
         _patrolTimer += Time.deltaTime;
-        if (_patrolTimer >= patrolTurnInterval)
+        if (_patrolTimer >= _patrolTurnInterval)
         {
             float randomY = Random.Range(0f, 360f);
             _idleLookRotation = Quaternion.Euler(0, randomY, 0);
@@ -199,7 +191,7 @@ public class Enemy : MonoBehaviour
         
         RotateTowards(_idleLookRotation);
 
-        if (canSeePlayer && distance <= detectionRadius)
+        if (canSeePlayer && distance <= _detectionRadius)
         {
             SwitchState(EnemyState.Chasing);
         }
@@ -209,7 +201,10 @@ public class Enemy : MonoBehaviour
     {
         if (_playerTransform == null) return;
 
-        _agent.SetDestination(_playerTransform.position);
+        if (_agent.isOnNavMesh)
+        {
+            _agent.SetDestination(_playerTransform.position);
+        }
         
         if (_agent.velocity.sqrMagnitude > 0.1f)
         {
@@ -217,11 +212,11 @@ public class Enemy : MonoBehaviour
             RotateTowards(moveRot);
         }
 
-        if (distance <= attackRange && canSeePlayer)
+        if (distance <= _attackRange && canSeePlayer)
         {
             SwitchState(EnemyState.Attacking);
         }
-        else if (distance > stopChaseDistance)
+        else if (distance > _stopChaseDistance)
         {
             SwitchState(EnemyState.Idle);
         }
@@ -233,22 +228,26 @@ public class Enemy : MonoBehaviour
 
         Vector3 dirToPlayer = (_playerTransform.position - transform.position).normalized;
         dirToPlayer.y = 0;
+        
         if (dirToPlayer != Vector3.zero)
         {
             Quaternion targetRot = Quaternion.LookRotation(dirToPlayer);
             RotateTowards(targetRot);
         }
 
-        Player playerScript = _playerTransform.GetComponent<Player>();
-        if (playerScript != null && !playerScript.isAlive)
+        if (_playerTransform.TryGetComponent(out Player playerScript) && !playerScript.IsAlive)
         {
             SwitchState(EnemyState.Idle);
             return;
         }
 
-        _gunController.TryShoot(); 
+        // Use the unified GunController to shoot
+        if (_gunController != null)
+        {
+            _gunController.TryShoot(); 
+        }
 
-        if (distance > attackRange * 1.2f || !canSeePlayer)
+        if (distance > _attackRange * 1.2f || !canSeePlayer)
         {
             SwitchState(EnemyState.Chasing);
         }
@@ -256,8 +255,8 @@ public class Enemy : MonoBehaviour
 
     private void RotateTowards(Quaternion targetRotation)
     {
-        Quaternion correctedTarget = targetRotation * Quaternion.Euler(0, modelRotationYOffset, 0);
-        transform.rotation = Quaternion.Slerp(transform.rotation, correctedTarget, Time.deltaTime * rotationSpeed);
+        Quaternion correctedTarget = targetRotation * Quaternion.Euler(0, _modelRotationYOffset, 0);
+        transform.rotation = Quaternion.Slerp(transform.rotation, correctedTarget, Time.deltaTime * _rotationSpeed);
     }
 
     #endregion
@@ -269,84 +268,61 @@ public class Enemy : MonoBehaviour
         if (_playerTransform == null) return false;
 
         Vector3 dirToPlayer = (_playerTransform.position - transform.position).normalized;
+        Vector3 currentForward = Quaternion.Euler(0, _modelRotationYOffset, 0) * transform.forward;
         
-        Vector3 currentForward = Quaternion.Euler(0, modelRotationYOffset, 0) * transform.forward;
-        
-        if (Vector3.Angle(currentForward, dirToPlayer) > fieldOfView / 2f)
+        if (Vector3.Angle(currentForward, dirToPlayer) > _fieldOfView / 2f)
         {
             return false;
         }
 
         float dstToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
-        
-        return !Physics.Raycast(transform.position + Vector3.up, dirToPlayer, dstToPlayer, obstacleMask);
+        return !Physics.Raycast(transform.position + Vector3.up, dirToPlayer, dstToPlayer, _obstacleMask);
     }
 
     private void UpdateAnimations()
     {
-        bool isMoving = _agent.velocity.sqrMagnitude > 0.1f;
-        _animator.SetBool("isMoving", isMoving);
+        if (_animator != null)
+        {
+            bool isMoving = _agent.velocity.sqrMagnitude > 0.1f;
+            _animator.SetBool("isMoving", isMoving);
+        }
     }
 
     public void TakeDamage(float amount)
     {
-        health -= amount;
+        _health -= amount;
         
         if (_currentState == EnemyState.Idle && _playerTransform != null) 
         {
             SwitchState(EnemyState.Chasing);
         }
         
-        if (health <= 0) Die();
+        if (_health <= 0) Die();
     }
 
     private void Die()
     {
         _agent.enabled = false;
         
-        mainUI.UpdateRemainingEnemies();
+        if (_deathEffectPrefab != null)
+        {
+            Instantiate(_deathEffectPrefab, transform.position, Quaternion.identity);
+        }
         
-        if (deathEffect) Instantiate(deathEffect, transform.position, Quaternion.identity);
-        
-        if (deathSound)
+        if (_deathSound != null)
         {
             GameObject soundObj = new GameObject("EnemyDeathSound");
             soundObj.transform.position = transform.position;
             
             AudioSource src = soundObj.AddComponent<AudioSource>();
-            src.clip = deathSound;
+            src.clip = _deathSound;
             src.spatialBlend = 1f; 
             
-            soundObj.AddComponent<AudioTimeScaleHandler>().Init(src);
+            soundObj.AddComponent<TimeHandler>().Init(src);
         }
 
         Destroy(gameObject);
     }
 
     #endregion
-}
-
-public class AudioTimeScaleHandler : MonoBehaviour
-{
-    private AudioSource _source;
-    private float _basePitch = 1f;
-
-    public void Init(AudioSource src)
-    {
-        _source = src;
-        _basePitch = Random.Range(0.9f, 1.1f);
-        _source.playOnAwake = false;
-        _source.Play();
-        StartCoroutine(ManageAudio());
-    }
-
-    private IEnumerator ManageAudio()
-    {
-        while (_source != null && _source.isPlaying)
-        {
-            _source.pitch = _basePitch * Mathf.Max(0.01f, Time.timeScale);
-            yield return null;
-        }
-        Destroy(gameObject);
-    }
 }

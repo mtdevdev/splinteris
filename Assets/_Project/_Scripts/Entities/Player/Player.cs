@@ -6,189 +6,110 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class Player : MonoBehaviour
 {
-    [Header("Player Settings")]
-    [SerializeField] float health = 100f;
+    [Header("Player Stats")]
+    [SerializeField] private float _health = 100f;
 
     [Header("Movement Settings")]
-    [SerializeField] Rigidbody rigidBody;
-    [SerializeField] Animator animator;
-    [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float rotationSpeed = 15f;
-
-    [Header("Time Scale")]
-    [SerializeField] float slowTimeScale = 0.2f;
-    [SerializeField] float timeScaleSmoothSpeed = 3f;
-    private float defaultFixedDeltaTime;
-
-    [Header("UI")]
-    [SerializeField] GameOver gameOver;
-
-    [Header("Death Effects")]
-    [SerializeField] GameObject deathEffect;
-    [SerializeField] AudioSource deathSound;
-
-    [Header("Player States")]
-    public bool isRunning = false;
-    public bool isAlive = true;
-    public bool gameWon = false;
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _rotationSpeed = 15f;
+    [SerializeField] private float _runningRotationOffset = 20f;
+    [SerializeField] private float _walkingRotationOffset = 31f;
 
     [Header("References")]
-    [SerializeField] GameObject playerModel;
-    [SerializeField] DeathSFXController deathSFXController;
+    [SerializeField] private Rigidbody _rigidbody;
+    [SerializeField] private Animator _animator;
+    [SerializeField] private GameObject _playerModel;
+    [SerializeField] private GunController _gunController; 
 
-    private Camera mainCamera;
+    [Header("Death Effects")]
+    [SerializeField] private GameObject _deathEffectPrefab;
+    [SerializeField] private AudioSource _deathAudioSource;
 
-    private float mouseRotationOffset;
+    [Header("State (Read Only)")]
+    public bool IsRunning = false;
+    public bool IsAlive = true;
 
-    private List<Transform> enemies = new List<Transform>();
+    private Camera _mainCamera;
+    private float _currentRotationOffset;
 
-    void Start()
+    private void Start()
     {
-        rigidBody = GetComponent<Rigidbody>();
-        mainCamera = Camera.main;
+        if (_rigidbody == null) _rigidbody = GetComponent<Rigidbody>();
+        if (_gunController == null) _gunController = GetComponent<GunController>();
+        
+        _mainCamera = Camera.main;
 
-        defaultFixedDeltaTime = Time.fixedDeltaTime;
-
-        // Initialize animator states
-        if (animator != null)
+        if (_animator != null)
         {
-            animator.SetBool("isRunning", false);
-            animator.SetBool("isAttacking", false);
+            _animator.SetBool("isRunning", false);
+            _animator.SetBool("isAttacking", false);
         }
     }
 
-    void Update()
+    private void Update()
     {
-       //if (!isAlive) return;
-       UpdateTimeScale();
+        if (!IsAlive) return;
+        
+        HandleShootingInput();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        if (!isAlive) return;
+        if (!IsAlive) return;
 
-        // Physics-related updates
-        Move();
+        HandleMovement();
         RotateTowardsMouse();
     }
 
-    public void GameWon()
+    private void HandleShootingInput()
     {
-        gameWon = true;
-        Time.timeScale = slowTimeScale;
-        Time.fixedDeltaTime = defaultFixedDeltaTime * slowTimeScale;
-    }
-
-    void HandlePlayerDeath()
-    {
-
-        playerModel.SetActive(false);
-        
-        rigidBody.linearVelocity = Vector3.zero;
-
-        isAlive = false;
-        isRunning = false;
-
-        animator.SetBool("isRunning", false);
-
-        if (deathEffect != null)
+        // Continuous fire while holding left click
+        if (Mouse.current != null && Mouse.current.leftButton.isPressed)
         {
-            var effect = Instantiate(deathEffect, transform.position, Quaternion.identity);
-            Destroy(effect, 10f);
-        }
-
-        PlayDeathSFX();
-        
-        gameOver.ShowGameOverScreen();
-
-    }
-
-    private void PlayDeathSFX()
-    {
-        if (deathSound == null) return;
-
-        float basePitch = Random.Range(0.8f, 1.2f);
-
-        var tempAudio = new GameObject("DeathSound") { transform = { position = transform.position } };
-        var aSource = tempAudio.AddComponent<AudioSource>();
-
-        aSource.clip = deathSound.clip;
-        aSource.outputAudioMixerGroup = deathSound.outputAudioMixerGroup;
-        aSource.spatialBlend = deathSound.spatialBlend;
-        aSource.playOnAwake = false;
-
-        tempAudio.AddComponent<DeathSFXController>().Init(aSource, basePitch);
-    }
-
-    void Move()
-    {
-        float h = 0f;
-        float v = 0f;
-
-        if (isRunning) mouseRotationOffset = 20f;
-        else mouseRotationOffset = 31f;
-
-        if (Keyboard.current.wKey.isPressed) v += 1;
-        if (Keyboard.current.sKey.isPressed) v -= 1;
-        if (Keyboard.current.aKey.isPressed) h -= 1;
-        if (Keyboard.current.dKey.isPressed) h += 1;
-
-        Vector3 moveDirection = new Vector3(h, 0f, v).normalized;
-        isRunning = moveDirection.sqrMagnitude > 0.001f;
-
-        if (animator != null) animator.SetBool("isRunning", isRunning);
-
-        Vector3 velocity = new Vector3(
-            moveDirection.x * moveSpeed,
-            rigidBody.linearVelocity.y,
-            moveDirection.z * moveSpeed
-        );
-
-        rigidBody.linearVelocity = velocity;
-    }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        foreach (ContactPoint contact in collision.contacts)
-        {
-            if (Vector3.Dot(contact.normal, Vector3.up) > 0.7f)
+            if (_gunController != null)
             {
-                // Prevent running animation from getting stuck
-                if (animator != null)
-                {
-                    animator.SetBool("isRunning", isRunning);
-                }
-
-                return;
+                _gunController.TryShoot();
             }
         }
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void HandleMovement()
     {
-        // Stop running animation when leaving the ground
-        if (animator != null)
+        float horizontal = 0f;
+        float vertical = 0f;
+
+        if (Keyboard.current.wKey.isPressed) vertical += 1;
+        if (Keyboard.current.sKey.isPressed) vertical -= 1;
+        if (Keyboard.current.aKey.isPressed) horizontal -= 1;
+        if (Keyboard.current.dKey.isPressed) horizontal += 1;
+
+        Vector3 moveDirection = new Vector3(horizontal, 0f, vertical).normalized;
+        IsRunning = moveDirection.sqrMagnitude > 0.001f;
+        _currentRotationOffset = IsRunning ? _runningRotationOffset : _walkingRotationOffset;
+
+        Vector3 velocity = new Vector3(
+            moveDirection.x * _moveSpeed,
+            _rigidbody.linearVelocity.y,
+            moveDirection.z * _moveSpeed
+        );
+
+        _rigidbody.linearVelocity = velocity;
+
+        if (_animator != null && _rigidbody.linearVelocity.magnitude > 0f)
         {
-            animator.SetBool("isRunning", false);
+            _animator.SetBool("isRunning", IsRunning);
+        }
+
+        if (_rigidbody.linearVelocity.magnitude < 0.2f)
+        {
+            _animator.SetBool("isRunning", false);
         }
     }
-    
-    public void TakeDamage(float damage)
-    {
-        health -= damage;
-        if (health <= 0)
-        {
-            HandlePlayerDeath();
 
-            Debug.Log("Player has died.");
-        }
-    }
-
-    void RotateTowardsMouse()
+    private void RotateTowardsMouse()
     {
-        // Convert mouse position to a world point
         Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = mainCamera.ScreenPointToRay(mousePos);
+        Ray ray = _mainCamera.ScreenPointToRay(mousePos);
         Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
 
         if (groundPlane.Raycast(ray, out float distance))
@@ -200,103 +121,112 @@ public class Player : MonoBehaviour
             if (direction != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
+                Quaternion offsetRotation = Quaternion.Euler(0, _currentRotationOffset, 0);
+                targetRotation *= offsetRotation;
 
-                // Apply rotation offset
-                Quaternion offset = Quaternion.Euler(0, mouseRotationOffset, 0);
-                targetRotation *= offset;
-
-                // Smooth rotation towards mouse direction
                 transform.rotation = Quaternion.Slerp(
                     transform.rotation,
                     targetRotation,
-                    rotationSpeed * Time.deltaTime
+                    _rotationSpeed * Time.fixedDeltaTime
                 );
             }
         }
     }
 
-    void UpdateTimeScale()
+    public void TakeDamage(float damage)
     {
-        if (gameWon) return;
+        if (!IsAlive) return;
+
+        _health -= damage;
+        if (_health <= 0)
+        {
+            HandleDeath();
+        }
+    }
+
+    private void HandleDeath()
+    {
+        IsAlive = false;
+        IsRunning = false;
+
+        _playerModel.SetActive(false);
+        _rigidbody.linearVelocity = Vector3.zero;
+
+        if (_animator != null) 
+            _animator.SetBool("isRunning", false);
+
+        if (_deathEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(_deathEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 10f);
+        }
+
+        PlayDeathSFX();
         
-        // Smoothly interpolate Time.timeScale based on whether the player is running
-        float target = isRunning ? 1f : slowTimeScale;
-        Time.timeScale = Mathf.Lerp(Time.timeScale, target, timeScaleSmoothSpeed * Time.unscaledDeltaTime);
-
-        // Snap to target if very close to avoid tiny lingering differences
-        if (Mathf.Abs(Time.timeScale - target) < 0.001f)
-            Time.timeScale = target;
-
-        // Keep fixedDeltaTime in sync with timeScale so physics behaves correctly
-        Time.fixedDeltaTime = defaultFixedDeltaTime * Time.timeScale;
+        GameManager.Instance.TriggerGameOver();
     }
 
-    void OnDisable()
+    private void PlayDeathSFX()
     {
-        // Restore time scale when the player controller is disabled
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = defaultFixedDeltaTime;
+        if (_deathAudioSource == null) return;
+
+        float basePitch = Random.Range(0.8f, 1.2f);
+        GameObject tempAudioObj = new GameObject("PlayerDeathSound");
+        tempAudioObj.transform.position = transform.position;
+        
+        AudioSource newSource = tempAudioObj.AddComponent<AudioSource>();
+        newSource.clip = _deathAudioSource.clip;
+        newSource.outputAudioMixerGroup = _deathAudioSource.outputAudioMixerGroup;
+        newSource.spatialBlend = _deathAudioSource.spatialBlend;
+        newSource.playOnAwake = false;
+
+        DeathSFXController sfxController = tempAudioObj.AddComponent<DeathSFXController>();
+        sfxController.Init(newSource, basePitch);
     }
 
-    void OnDestroy()
-    {
-        // Extra safety to restore values when the scene closes / object is destroyed
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = defaultFixedDeltaTime;
-    }
 }
 
+// Kept in the same file as requested by the original structure, but cleaned up
 public class DeathSFXController : MonoBehaviour
 {
-    AudioSource audioSource;
-    float destroyDelay = 0.1f;
+    private AudioSource _audioSource;
+    private const float DestroyDelay = 0.1f;
 
     public void Init(AudioSource source, float pitch)
     {
-        audioSource = source ?? GetComponent<AudioSource>();
-        if (audioSource == null)
+        _audioSource = source ?? GetComponent<AudioSource>();
+        if (_audioSource == null)
         {
             Destroy(gameObject);
             return;
         }
 
-        // Ensure this object stays at the audio source position
-        transform.position = audioSource.transform.position;
+        transform.position = _audioSource.transform.position;
+        _audioSource.pitch = pitch;
+        _audioSource.Play();
 
-        audioSource.pitch = pitch;
-        audioSource.Play();
-
-        // Start lifecycle coroutine using real time to avoid being affected by Time.timeScale
-        StartCoroutine(DestroyWhenFinished());
+        StartCoroutine(DestroyWhenFinishedRoutine());
     }
 
-    IEnumerator DestroyWhenFinished()
+    private IEnumerator DestroyWhenFinishedRoutine()
     {
-        if (audioSource == null)
+        if (_audioSource == null || _audioSource.clip == null)
         {
             Destroy(gameObject);
             yield break;
         }
 
-        if (audioSource.clip == null || audioSource.clip.length <= 0f)
-        {
-            Destroy(gameObject);
-            yield break;
-        }
-
-        float length = audioSource.clip.length / Mathf.Max(0.0001f, Mathf.Abs(audioSource.pitch));
-        // Use realtime wait so this isn't slowed by Time.timeScale
-        yield return new WaitForSecondsRealtime(length + destroyDelay);
+        float clipLength = _audioSource.clip.length / Mathf.Max(0.0001f, Mathf.Abs(_audioSource.pitch));
+        yield return new WaitForSecondsRealtime(clipLength + DestroyDelay);
 
         Destroy(gameObject);
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        // Cleanup if component is disabled for any reason
-        if (audioSource != null && audioSource.isPlaying)
+        if (_audioSource != null && _audioSource.isPlaying)
         {
-            audioSource.Stop();
+            _audioSource.Stop();
         }
     }
 }

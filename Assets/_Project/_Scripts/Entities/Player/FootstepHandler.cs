@@ -1,40 +1,74 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(AudioSource))]
 public class FootstepHandler : MonoBehaviour
 {
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip[] _footstepClips;
+    [SerializeField] private float _stepInterval = 0.5f;
+    [SerializeField, Range(0f, 0.5f)] private float _pitchVariance = 0.1f; 
 
-    [SerializeField] private AudioSource footstepAudioSource;
-    [SerializeField] private float footstepInterval = 0.5f;
+    [Header("References")]
+    [SerializeField] private Player _player;
 
-    private float footstepTimer = 0f;
+    private float _stepTimer;
+    private Rigidbody _playerRigidbody;
 
-    private Player player;
-
-    void Start()
+    private void Start()
     {
-        player = GetComponent<Player>();
+        _playerRigidbody = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Awake()
     {
-        if (!player.isAlive) return;
+        if (_audioSource == null) _audioSource = GetComponent<AudioSource>();
+        if (_player == null) _player = GetComponent<Player>();
+        
+        // Starts at interval so the first step plays immediately when moving
+        _stepTimer = _stepInterval;
+    }
 
-        if (Keyboard.current.wKey.isPressed || Keyboard.current.aKey.isPressed || Keyboard.current.sKey.isPressed || Keyboard.current.dKey.isPressed)  
+    private void Update()
+    {
+        if (_player != null && !_player.IsAlive) return;
+
+        if (IsMoving())
         {
-            if (!footstepAudioSource.isPlaying)
+            _stepTimer += Time.deltaTime;
+
+            if (_stepTimer >= _stepInterval)
             {
-                footstepAudioSource.Play();
-                footstepTimer = 0f;
+                PlayFootstep();
+                _stepTimer = 0f;
             }
         }
-
-        footstepTimer += Time.deltaTime;
-        if (footstepTimer >= footstepInterval && footstepAudioSource.isPlaying && (Keyboard.current.wKey.isPressed || Keyboard.current.aKey.isPressed || Keyboard.current.sKey.isPressed || Keyboard.current.dKey.isPressed))
+        else
         {
-            footstepAudioSource.Play();
-            footstepTimer = 0f;
+            // Reset timer when stopped
+            _stepTimer = _stepInterval;
         }
+    }
+
+    private void PlayFootstep()
+    {
+        _audioSource.pitch = 1f + Random.Range(-_pitchVariance, _pitchVariance);
+
+        if (_footstepClips != null && _footstepClips.Length > 0)
+        {
+            AudioClip randomClip = _footstepClips[Random.Range(0, _footstepClips.Length)];
+            _audioSource.PlayOneShot(randomClip);
+        }
+        else
+        {
+            _audioSource.Play();
+        }
+    }
+
+    private bool IsMoving()
+    {
+        return _playerRigidbody.linearVelocity.magnitude > 0.1f; 
     }
 
 }

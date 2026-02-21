@@ -204,8 +204,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2002976717}
-        m_TargetAssemblyTypeName: VictoryUI, Assembly-CSharp
-        m_MethodName: returnToMenu
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ReturnToMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10075,8 +10075,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2002976717}
-        m_TargetAssemblyTypeName: VictoryUI, Assembly-CSharp
-        m_MethodName: restartGame
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: RestartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11096,8 +11096,8 @@ GameObject:
   - component: {fileID: 2002976714}
   - component: {fileID: 2002976713}
   - component: {fileID: 2002976712}
-  - component: {fileID: 2002976717}
   - component: {fileID: 2002976716}
+  - component: {fileID: 2002976717}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -11296,13 +11296,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2002976711}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95c307567a6bfd942b9b34263109dbcb, type: 3}
+  m_Script: {fileID: 11500000, guid: 80c6ba523cfdf3345921930c3a25854f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  victoryCanvas: {fileID: 2002976714}
-  restartButton: {fileID: 790455668}
-  menuButton: {fileID: 119108994}
-  victoryMusic: {fileID: 2002976716}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

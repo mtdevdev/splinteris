@@ -165,10 +165,10 @@ GameObject:
   - component: {fileID: 5015672469381219801}
   - component: {fileID: 4836560098999094436}
   - component: {fileID: 8633472159895851073}
-  - component: {fileID: 4626876574477213044}
   - component: {fileID: 353149167487023246}
   - component: {fileID: 1706380519638046326}
   - component: {fileID: 423627896005559017}
+  - component: {fileID: 5526172753402744739}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Enemy
@@ -184,7 +184,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5725274184902885334}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.2744484, y: -0.2358017, z: -41.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -280,42 +280,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7d961ecfe83ffa4fa06876f8dcf8346, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
-  playerTag: Player
-  modelRotationYOffset: 32
-  detectionRadius: 15
-  fieldOfView: 110
-  attackRange: 10
-  stopChaseDistance: 20
-  obstacleMask:
+  _health: 100
+  _playerTag: Player
+  _modelRotationYOffset: 30
+  _detectionRadius: 15
+  _fieldOfView: 150
+  _attackRange: 10
+  _stopChaseDistance: 20
+  _obstacleMask:
     serializedVersion: 2
     m_Bits: 64
-  rotationSpeed: 2
-  patrolTurnInterval: 4
-  deathEffect: {fileID: 406593658351426426, guid: 5b66de11641450247a9a90b530d525f3, type: 3}
-  deathSound: {fileID: 8300000, guid: 52e87cf45db870a4faed6baa57f868c2, type: 3}
-  mainUI: {fileID: 0}
---- !u!114 &4626876574477213044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5725274184902885334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 348a1df537a309d4e91f8760d6a40f45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 7828065899421177727, guid: 58d99b7136180b142b66c2329b992d9d, type: 3}
-  firePoint: {fileID: 3707612087830119117}
-  fireRate: 0.5
-  projectileForce: 20
-  damage: 100
-  muzzleFlash: {fileID: 7608798058436961894}
-  muzzleLight: {fileID: 5398223778050310181}
-  audioSource: {fileID: 423627896005559017}
-  shootSFX: {fileID: 8300000, guid: 499518d4fc3ce0d41a9502141a5872c8, type: 3}
+  _rotationSpeed: 8
+  _patrolTurnInterval: 4
+  _deathEffectPrefab: {fileID: 406593658351426426, guid: 5b66de11641450247a9a90b530d525f3, type: 3}
+  _deathSound: {fileID: 8300000, guid: 52e87cf45db870a4faed6baa57f868c2, type: 3}
 --- !u!195 &353149167487023246
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -457,6 +435,28 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5526172753402744739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5725274184902885334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2e1212165620134991ebd763695f829, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _projectilePrefab: {fileID: 7828065899421177727, guid: 58d99b7136180b142b66c2329b992d9d, type: 3}
+  _firePoint: {fileID: 3707612087830119117}
+  _fireForce: 20
+  _projectileLifeTime: 2
+  _damage: 100
+  _fireRate: 1
+  _muzzleFlashParticle: {fileID: 7919394962878404062, guid: 5c4e84d43e47f704f901c6fd1dd10f3a, type: 3}
+  _muzzleLight: {fileID: 5398223778050310181}
+  _audioSource: {fileID: 423627896005559017}
+  _shootSound: {fileID: 8300000, guid: 499518d4fc3ce0d41a9502141a5872c8, type: 3}
 --- !u!1 &6046488694950891647
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,11 +764,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c4e84d43e47f704f901c6fd1dd10f3a, type: 3}
---- !u!198 &7608798058436961894 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 7919394962878404062, guid: 5c4e84d43e47f704f901c6fd1dd10f3a, type: 3}
-  m_PrefabInstance: {fileID: 319955993606992824}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8142867658972229921 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8462809855734694553, guid: 5c4e84d43e47f704f901c6fd1dd10f3a, type: 3}

@@ -895,8 +895,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1427418132}
-        m_TargetAssemblyTypeName: MenuUI, Assembly-CSharp
-        m_MethodName: startGame
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6109,8 +6109,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1427418132}
-        m_TargetAssemblyTypeName: MenuUI, Assembly-CSharp
-        m_MethodName: quitGame
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6225,8 +6225,8 @@ GameObject:
   - component: {fileID: 1427418129}
   - component: {fileID: 1427418128}
   - component: {fileID: 1427418127}
-  - component: {fileID: 1427418132}
   - component: {fileID: 1427418131}
+  - component: {fileID: 1427418132}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -6426,13 +6426,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1427418126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c7d6127473f6044a8940f1dea07280, type: 3}
+  m_Script: {fileID: 11500000, guid: 80c6ba523cfdf3345921930c3a25854f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  menuCanvas: {fileID: 1427418129}
-  quitButton: {fileID: 1139105929}
-  startButton: {fileID: 277920306}
-  menuMusic: {fileID: 1427418131}
 --- !u!1 &1613633436
 GameObject:
   m_ObjectHideFlags: 0

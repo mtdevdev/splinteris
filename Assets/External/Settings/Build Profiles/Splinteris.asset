@@ -21,13 +21,13 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/Scenes/Menu.unity
+    m_path: Assets/_Project/Scenes/MainMenu.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/Main Game.unity
+    m_path: Assets/_Project/Scenes/MainGame.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/Game Over.unity
+    m_path: Assets/_Project/Scenes/GameOver.unity
   - m_enabled: 1
-    m_path: Assets/Scenes/Victory.unity
+    m_path: Assets/_Project/Scenes/Victory.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings: []

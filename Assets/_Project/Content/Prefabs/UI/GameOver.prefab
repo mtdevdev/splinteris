@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1104905707220044322}
   - component: {fileID: 7739887423236063110}
   - component: {fileID: 3153027657402328242}
-  - component: {fileID: 5325593063145954200}
   m_Layer: 5
   m_Name: GameOver
   m_TagString: Untagged
@@ -85,7 +84,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &3153027657402328242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,23 +102,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &5325593063145954200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 849937607756784328}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cdc7b4ed92263a43a3f2d0af0869bb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameOverCanvas: {fileID: 849937607756784328}
-  BGImage: {fileID: 0}
-  mainNormalMusic: {fileID: 0}
-  mainSlowMusic: {fileID: 0}
-  ambienceMusic: {fileID: 0}
 --- !u!1 &2203033539090239232
 GameObject:
   m_ObjectHideFlags: 0
