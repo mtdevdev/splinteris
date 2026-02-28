@@ -14,7 +14,7 @@ public class TimeHandler : MonoBehaviour
 
     private void Start()
     {
-        //Get components
+        // Get components
         _player = GetComponent<Player>();
 
         // Store default value to scale physics correctly

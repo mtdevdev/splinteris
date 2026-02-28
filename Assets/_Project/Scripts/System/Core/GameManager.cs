@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void TriggerGameOver()
     {
+
         // Stop music
         if (AudioManager.Instance != null)
             AudioManager.Instance.StopAllMusic();
