@@ -16,7 +16,7 @@ Este repositório contém o código-fonte do jogo **SPLINTERIS**, desenvolvido n
 A arquitetura do projeto foi dividida em domínios específicos para facilitar a manutenção, escalabilidade e o desacoplamento do código. Abaixo está a estrutura de pastas principal:
 
 ```text
-_Scripts/
+Assets/_Project/Scripts/
 ├── Combat/
 │   ├── GunController.cs
 │   └── Projectile.cs
