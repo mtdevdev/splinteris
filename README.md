@@ -11,7 +11,7 @@ Este repositório contém o código-fonte do jogo **SPLINTERIS**, desenvolvido n
 
 ---
 
-## Estrutura de Scripts (`_Scripts`)
+## Estrutura da pasta Scripts
 
 A arquitetura do projeto foi dividida em domínios específicos para facilitar a manutenção, escalabilidade e o desacoplamento do código. Abaixo está a estrutura de pastas principal:
 
