@@ -1,19 +1,19 @@
 # SPLINTERIS: Source Code
 
-Este repositório contém o código-fonte do jogo **SPLINTERIS**, desenvolvido na **Unity Engine**. O objetivo deste projeto é demonstrar minhas competências em arquitetura de software, organização de projetos e padrões de desenvolvimento em C#.
+This repository contains the source code for **SPLINTERIS**, a game built with the **Unity Engine**. The goal of this project is to demonstrate my skills in software architecture, project organization, and C# development patterns.
 
 ---
 
-## Tecnologias e Ferramentas
-* **Engine:** [Unity](https://unity.com) (Versão: 6.1 (6000.1.15f1))
-* **Linguagem:** C#
-* **Versionamento:** Git (com [.gitignore para Unity](https://github.com/github/gitignore/blob/main/Unity.gitignore))
+## Technologies and Tools
+* **Engine:** [Unity](https://unity.com) (Version: 6.1 (6000.1.15f1))
+* **Language:** C#
+* **Version Control:** Git (with [Unity's .gitignore](https://github.com/github/gitignore/blob/main/Unity.gitignore))
 
 ---
 
-## Estrutura da pasta Scripts
+## Scripts Folder Structure
 
-A arquitetura do projeto foi dividida em domínios específicos para facilitar a manutenção, escalabilidade e o desacoplamento do código. Abaixo está a estrutura de pastas principal:
+The project's architecture is split into specific domains to ease maintenance, scalability, and decoupling. Below is the main folder structure:
 
 ```text
 Assets/_Project/Scripts/
@@ -36,3 +36,4 @@ Assets/_Project/Scripts/
         ├── GameManager.cs
         ├── TimeHandler.cs
         └── UIManager.cs
+```
