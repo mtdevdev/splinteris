@@ -1,7 +1,7 @@
 # SPLINTERIS
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mtdevdev/platter/main/splinterisHeader.jpg" alt="Header of the game SPLINTERIS" width="100%">
+  <img src="https://raw.githubusercontent.com/mtdevdev/splinteris/main/splinterisHeader.jpg" alt="Header of the game SPLINTERIS" width="100%">
 </p>
 
 This repository contains the source code for **SPLINTERIS**, a game built with the **Unity Engine**. The goal of this project is to demonstrate my skills in software architecture, project organization, and C# development patterns.
